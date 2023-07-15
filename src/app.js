@@ -5,6 +5,8 @@ const {
   // returnAnyCustomer,
   insertCustomer,
   findAllCustomers,
+  findOneCustomer,
+  updateCustomer,
 } = require('./models/customers.model');
 
 app.use(express.json());
@@ -38,6 +40,14 @@ app.get('/', (req, res) => {
 
 app.get('/api/customers', async (req, res) => {
   findAllCustomers(req, res);
+});
+
+app.get('/api/customers/:id', (req, res) => {
+  findOneCustomer(req, res);
+});
+
+app.put('/api/customers/:id', (req, res) => {
+  updateCustomer(req, res);
 });
 
 app.post('/api/customers', (req, res) => {
