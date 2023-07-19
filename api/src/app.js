@@ -1,41 +1,31 @@
 const express = require('express');
 const app = express();
 require('dotenv').config();
+const cors = require('cors')
+
 const {
   // returnAnyCustomer,
   insertCustomer,
   findAllCustomers,
   findOneCustomer,
   updateCustomer,
+  deleteOne,
 } = require('./models/customers.model');
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// const { MongoClient } = require('mongodb');
-
-// if (process.env.NODE_ENV !== 'production') {
-// }
 let PORT = process.env.PORT || 3000;
 const URI = process.env.URI;
 
-// const customers = [
-//   {
-//     name: 'Caleb',
-//     industry: 'music',
-//   },
-//   {
-//     name: 'John',
-//     industry: 'networking',
-//   },
-//   {
-//     name: 'Sal',
-//     industry: 'sports medicine',
-//   },
-// ];
 
 app.get('/', (req, res) => {
   res.send('welcome!');
+});
+
+app.delete('/api/customers/:id', (req, res) => {
+  deleteOne(req, res);
 });
 
 app.get('/api/customers', async (req, res) => {

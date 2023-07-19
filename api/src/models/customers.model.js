@@ -1,23 +1,12 @@
 const { withDB } = require('./db');
 const ObjectId = require('mongodb').ObjectId;
 
-// async function returnAnyCustomer(req, res) {
-//   const customer = {
-//     name: 'caleb',
-//     industry: 'marketing',
-//   };
-//   res.send(customer);
-// }
-
 async function insertCustomer(req, res) {
   try {
     withDB(async (db) => {
-      // data = {
-      //   name: req.body.name,
-      //   industry: req.body.industry,
-      // };
+    
       await db.collection('clients').insertOne(req.body);
-      res.status(201).send('One customer successfully inserted');
+      res.status(201).json({msg: 'One customer successfully inserted'});
     }, res);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -27,8 +16,8 @@ async function insertCustomer(req, res) {
 async function findAllCustomers(req, res) {
   try {
     withDB(async (db) => {
-      const clientsDocList = await db.collection('clients').find({}).toArray();
-      res.json({ clients: clientsDocList });
+      const customers = await db.collection('clients').find({}).toArray();
+      res.json({ customers });
     }, res);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -38,13 +27,13 @@ async function findAllCustomers(req, res) {
 async function findOneCustomer(req, res) {
   try {
     withDB(async (db) => {
-      const clientsDocList = await db
+      const customer = await db
         .collection('clients')
         .findOne({ _id: new ObjectId(req.params.id) });
-      if (!clientsDocList) {
+      if (!customer) {
         res.status(400).json({ error: 'user not found' });
       }
-      res.json({ clients: clientsDocList });
+      res.json({ customer });
     }, res);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -54,23 +43,29 @@ async function findOneCustomer(req, res) {
 async function updateCustomer(req, res) {
   try {
     withDB(async (db) => {
-      let updatedRec = await db.collection('clients').findOneAndUpdate(
+      let updatedClient = await db.collection('clients').findOneAndUpdate(
         { _id: new ObjectId(req.params.id) },
         {
-          $set: {
-            name: req.body.name,
-            industry: req.body.industry,
-          },
+          $set: req.body,
         },
         {
           returnDocument: 'after',
         }
       );
-      res.json({ updatedRecord: updatedRec.value });
+      res.json({ customer: updatedClient.value });
     });
   } catch (err) {
     res.status(500).json({ Error: 'Something went wrong' });
   }
+}
+
+async function deleteOne(req, res) {
+  withDB(async (db) => {
+    await db
+      .collection('clients')
+      .deleteOne({ _id: new ObjectId(req.params.id) });
+    res.json({ msg: 'One document deleted' });
+  }, res);
 }
 
 module.exports = {
@@ -78,4 +73,5 @@ module.exports = {
   findAllCustomers,
   findOneCustomer,
   updateCustomer,
+  deleteOne,
 };
